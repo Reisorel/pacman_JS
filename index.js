@@ -1,12 +1,14 @@
+// Séléctionne l'élément canvas du doc HTML et récupère le contexte 2D
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 
+//Définit largeur et hauteur du canvas aux dimensions de la fenêtre navigateur
 canvas.width = innerWidth
 canvas.height = innerHeight
 
 class Boundary {
   static width = 40
-  static heigth = 40
+  static height = 40
   constructor({ position }) {
     this.position = position
     this.width = 40
@@ -47,7 +49,7 @@ const boundaries = []
 const player = new Player({
   position: {
     x: Boundary.width + Boundary.width / 2,
-    y: Boundary.heigth + Boundary.heigth / 2,
+    y: Boundary.height + Boundary.height / 2,
   },
   velocity: {
     x: 0,
@@ -76,6 +78,8 @@ const map = [
   ['-', ' ', ' ', ' ', ' ', ' ', '-',],
   ['-', ' ', '-', ' ', '-', ' ', '-',],
   ['-', ' ', ' ', ' ', ' ', ' ', '-',],
+  ['-', ' ', '-', ' ', '-', ' ', '-',],
+  ['-', ' ', ' ', ' ', ' ', ' ', '-',],
   ['-', '-', '-', '-', '-', '-', '-',]
 ]
 
@@ -87,7 +91,7 @@ map.forEach((row, i) => {
           new Boundary({
             position: {
               x: Boundary.width * j,
-              y: Boundary.heigth * i
+              y: Boundary.height * i
             }
           }))
         break
@@ -110,13 +114,82 @@ function animate() {
   c.clearRect(0, 0, canvas.width, canvas.height)
 
   if (keys.z.pressed && lastKey == 'z') {
-    player.velocity.y = -5
+    for (let i = 0; i < boundaries.length; i++) {
+      const boundary = boundaries[i]
+      if (circleCollideWithRectangel({
+        circle: {
+          ...player, velocity: {
+            x: 0,
+            y: -5
+          }
+        },
+        rectangle: boundary
+      })
+      ) {
+        player.velocity.y = 0
+        break
+      } else {
+        player.velocity.y = -5
+      }
+    }
+
   } else if (keys.q.pressed && lastKey == 'q') {
-    player.velocity.x = -5
-  } else if (keys.s.pressed && lastKey == 's') {
-    player.velocity.y = 5
+    for (let i = 0; i < boundaries.length; i++) {
+      const boundary = boundaries[i]
+      if (circleCollideWithRectangel({
+        circle: {
+          ...player, velocity: {
+            x: -5,
+            y: 0
+          }
+        },
+        rectangle: boundary
+      })
+      ) {
+        player.velocity.x = 0
+        break
+      } else {
+        player.velocity.x = -5
+      }
+    }
+    } else if (keys.s.pressed && lastKey == 's') {
+    for (let i = 0; i < boundaries.length; i++) {
+      const boundary = boundaries[i]
+      if (circleCollideWithRectangel({
+        circle: {
+          ...player, velocity: {
+            x: 0,
+            y: 5
+          }
+        },
+        rectangle: boundary
+      })
+      ) {
+        player.velocity.y = 0
+        break
+      } else {
+        player.velocity.y = 5
+      }
+    }
   } else if (keys.d.pressed && lastKey == 'd') {
-    player.velocity.x = 5
+    for (let i = 0; i < boundaries.length; i++) {
+      const boundary = boundaries[i]
+      if (circleCollideWithRectangel({
+        circle: {
+          ...player, velocity: {
+            x: 5,
+            y: 0
+          }
+        },
+        rectangle: boundary
+      })
+      ) {
+        player.velocity.x = 0
+        break
+      } else {
+        player.velocity.x = 5
+      }
+    }
   }
 
   boundaries.forEach((boundary) => {
@@ -125,7 +198,7 @@ function animate() {
     if (
       circleCollideWithRectangel({
         circle: player,
-        player: boundary
+        rectangle: boundary
       })
     ) {
       console.log('we are colliding');
